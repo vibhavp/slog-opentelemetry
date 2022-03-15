@@ -22,12 +22,6 @@ pub struct OpenTelemetry<F: Fn() -> SystemTime> {
 
 const LOG_EMITTER_NAME: &str = "github.com/vibhavp/slog-opentelemetry";
 
-impl<F: Fn() -> SystemTime> OpenTelemetry<F> {
-    pub fn builder() -> OpenTelemetryBuilder<impl Fn() -> SystemTime> {
-        new_builder()
-    }
-}
-
 /// A builder for the [`OpenTelemetry`] `Drain`.
 #[derive(Debug)]
 pub struct OpenTelemetryBuilder<F: Fn() -> SystemTime> {
@@ -35,26 +29,22 @@ pub struct OpenTelemetryBuilder<F: Fn() -> SystemTime> {
     timestamp: F,
 }
 
-fn new_builder() -> OpenTelemetryBuilder<impl Fn() -> SystemTime> {
-    OpenTelemetryBuilder {
-        resource: None,
-        timestamp: SystemTime::now,
+impl<F> OpenTelemetryBuilder<F>
+where
+    F: Fn() -> SystemTime,
+{
+    /// Create a new builder with a function that returns the current timestamp
+    pub fn new(f: F) -> Self {
+        Self {
+            timestamp: f,
+            resource: None,
+        }
     }
-}
 
-impl<F: Fn() -> SystemTime> OpenTelemetryBuilder<F> {
     /// Set resource for all emitted Records.
     pub fn with_resource(self, resource: BTreeMap<Cow<'static, str>, Any>) -> Self {
         Self {
             resource: Some(resource),
-            ..self
-        }
-    }
-
-    /// Set function that returns the current timestamp
-    pub fn with_timestamp(self, f: F) -> Self {
-        Self {
-            timestamp: f,
             ..self
         }
     }
@@ -108,6 +98,7 @@ impl<F: Fn() -> SystemTime> Drain for OpenTelemetry<F> {
         }
 
         values.serialize(record, &mut attrs)?;
+        record.kv().serialize(record, &mut attrs)?;
 
         let mut record_builder = LogRecord::builder()
             .with_context(&context)
