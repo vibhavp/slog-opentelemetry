@@ -1,0 +1,22 @@
+[package]
+name = "slog-opentelemetry"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+slog = "2"
+opentelemetry = {version = "0.17", features = ["log", "trace"]}
+opentelemetry-semantic-conventions = "0.9"
+erased-serde = { version = "0.3", optional = true }
+serde_json = { version = "1", optional = true }
+lazy_static = "1"
+thiserror = "1"
+
+[patch.crates-io]
+opentelemetry = { git = "https://github.com/vibhavp/opentelemetry-rust", branch = "main"}
+
+[features]
+default = ["nested-values"]
+nested-values = ["slog/nested-values", "erased-serde", "serde_json"]
