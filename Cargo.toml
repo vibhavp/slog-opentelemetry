@@ -13,7 +13,6 @@ erased-serde = { version = "0.3", optional = true }
 serde_json = { version = "1", optional = true }
 lazy_static = "1"
 thiserror = "1"
-tokio = { version = "1", features = ["full"] }
 
 [patch.crates-io]
 opentelemetry = { git = "https://github.com/vibhavp/opentelemetry-rust", branch = "main"}
@@ -25,3 +24,4 @@ nested-values = ["slog/nested-values", "erased-serde", "serde_json"]
 
 [dev-dependencies]
 opentelemetry-otlp = { version = "0.10", features = ["log", "tonic"] }
+tokio = { version = "1", features = ["full"] }
